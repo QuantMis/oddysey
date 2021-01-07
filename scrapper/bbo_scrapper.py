@@ -11,7 +11,7 @@ import json
 # fetch this from mongo
 configs = [{'name':'eth1', 'symbol':'ETHUSDT', 'interval':'5'},{'name':'eth2','symbol':'BTCUSDT', 'interval':'30'}]
 
-with open('/home/lenovo/Desktop/algo/oddysey/auth.json') as f:
+with open('/root/oddysey/auth.json') as f:
 	d = json.load(f)
 
 class BBOScrapper:

@@ -15,14 +15,42 @@ class StdDev:
 
 		# todo: compute params
 		ask, bid = data['ask'], data['bid']
-		mid_price = [round((i+j)/2,2) for i,j in zip(ask,bid)][-int(table['period']):]
-		dev = stdev(mid_price)
-		
-		# make insertion/update to docs
-		docs = initMongo(self.col2).find_one({'name': table['name']})
-		if docs:
+		mid_price = [round((i+j)/2,2) for i,j in zip(ask,bid)]
+
+		# params computation exclude cuurent data
+		current_mp = mid_price[-1]
+		mid_price.pop(-1)
+
+		dev = stdev(mid_price[-int(table['period']):])
+		xmean = mean(mid_price[-int(table['period']):])
+
+		data = {
+			"ub":xmean+2*dev,
+			"lb":xmean-2*dev,
+			"mp":current_mp,
+		}
+
+		self.updateDocs(data, table)
 
 		lock.release()
+
+	def updateDocs(self, data, table):
+		docs = initMongo(self.col2).find_one({'name':table['name']})
+		if docs is not None:
+			initMongo(self.col2).update_one({'name':table['name']}, {"$set":data})
+
+		else:
+			temp_obj = {
+				"name":table['name'],
+				"table_name": table['table_name'],
+				"period": str(table['period']),
+				"lb": data['lb'],
+				"ub": data['ub'],
+				"mp": data['mp']
+			}
+			initMongo(self.col2).insert_one(temp_obj)
+
+		return
 
 	def run(self):
 		df = pd.DataFrame(configs)

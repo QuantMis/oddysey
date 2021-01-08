@@ -85,7 +85,10 @@ class BBOScrapper:
 				"timestamp": timestamp
 			}
 
+
 			self.mongo_client.insert_one(temp_obj)
+
+		return
 
 
 

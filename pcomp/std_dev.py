@@ -3,8 +3,6 @@ import _thread
 from oddysey.utils import *
 from statistics import *
 
-configs = [{'name':'eth1_stdev_20', 'table_name':'eth1', 'period':20}, {'name':'eth1_stdev_100', 'table_name':'eth1', 'period':100}]
-
 class StdDev:
 	def __init__(self):
 		self.col1 = 'marketData'
@@ -53,7 +51,7 @@ class StdDev:
 		return
 
 	def run(self):
-		df = pd.DataFrame(configs)
+		df = pd.DataFrame(list(initMongo(self.col2).find()))
 		locks = []
 		n = range(len(df))
 

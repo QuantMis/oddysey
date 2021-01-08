@@ -8,9 +8,6 @@ import sys
 
 import json
 
-# fetch this from mongo
-configs = [{'name':'eth1', 'symbol':'ETHUSDT', 'interval':'5'},{'name':'eth2','symbol':'BTCUSDT', 'interval':'30'}]
-
 with open('/root/oddysey/auth.json') as f:
 	d = json.load(f)
 
@@ -94,7 +91,7 @@ class BBOScrapper:
 
 	def run(self):
 		while True:
-			df = pd.DataFrame(configs)
+			df = pd.DataFrame(list(initMongo(self.col).find()))
 			locks = []
 			n = range(len(df))
 			for i in n:

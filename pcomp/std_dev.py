@@ -1,8 +1,9 @@
 import pandas as pd
 import _thread
 from oddysey.utils import *
+from statistics import *
 
-configs = [{'table_name':'eth1'}] #,{'table_name':'eth2'}]
+configs = [{'name':'eth1_stdev_20', 'table_name':'eth1', 'period':20}, {'name':'eth1_stdev_100', 'table_name':'eth1', 'period':100}]
 
 class StdDev:
 	def __init__(self):
@@ -11,7 +12,16 @@ class StdDev:
 
 	def computeSTDEV(self, table, lock):
 		data = initMongo(self.col1).find_one({'name': table['table_name']})
-		print(f"ts: {data['timestamp'][-1]}, ask: {data['ask'][-1]}, ask_volume: {data['ask_volume'][-1]}")
+
+		# todo: compute params
+		ask, bid = data['ask'], data['bid']
+		mid_price = [round((i+j)/2,2) for i,j in zip(ask,bid)][-int(table['period']):]
+		dev = stdev(mid_price)
+		
+		# make insertion/update to docs
+		docs = initMongo(self.col2).find_one({'name': table['name']})
+		if docs:
+
 		lock.release()
 
 	def run(self):

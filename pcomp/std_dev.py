@@ -31,6 +31,7 @@ class StdDev:
 		self.updateDocs(data, table)
 
 		lock.release()
+		return
 
 	def updateDocs(self, data, table):
 		docs = initMongo(self.col2).find_one({'name':table['name']})

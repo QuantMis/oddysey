@@ -35,6 +35,7 @@ class StdDev:
 
 	def updateDocs(self, data, table):
 		docs = initMongo(self.col2).find_one({'name':table['name']})
+		print(docs)
 		if docs is not None:
 			initMongo(self.col2).update_one({'name':table['name']}, {"$set":data})
 

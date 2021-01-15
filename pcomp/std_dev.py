@@ -36,7 +36,7 @@ class StdDev:
 	def updateDocs(self, data, table):
 		docs = initMongo(self.col2).find_one({'name':table['name']})
 		print(docs)
-		if docs is not None:
+		if docs['init'] is False:
 			initMongo(self.col2).update_one({'name':table['name']}, {"$set":data})
 
 		else:
@@ -46,9 +46,11 @@ class StdDev:
 				"period": str(table['period']),
 				"lb": data['lb'],
 				"ub": data['ub'],
-				"mp": data['mp']
+				"mp": data['mp'],
+                "init": False
 			}
-			initMongo(self.col2).insert_one(temp_obj)
+
+			initMongo(self.col2).update_one({'name':table['name']}, {"$set":temp_obj})
 
 		return
 

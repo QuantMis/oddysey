@@ -7,7 +7,7 @@ import time
 class MomentumScalper:
 	def __init__(self):
 		self.paramData = initMongo('paramData')
-		self.signalData = initMongo('strategy')
+		self.signalData = initMongo('signalData')
 
 	def generate_signal(self, signal, lock):
 		data = self.paramData.find_one({'name': signal['param_table']})
@@ -32,6 +32,8 @@ class MomentumScalper:
 			"status":status,
 			"timestamp":int(time.time())
 		}
+
+		print(temp_obj)
 
 		self.updateDocs(temp_obj, signal)
 

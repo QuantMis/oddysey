@@ -3,7 +3,7 @@ from oddysey.connector.fbinance import connector
 
 # init mongo
 def initMongo(col) -> MongoClient:
-    client = MongoClient("202.59.9.188",port=27017, username="admin", password="israa2608", authSource="admin")['oddysey'][col]
+    client = MongoClient("202.59.9.188",port=27017, username="admin2", password="israa2608", authSource="admin")['oddysey'][col]
     return client
 
 def initConnector(config):

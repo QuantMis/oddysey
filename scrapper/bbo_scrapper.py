@@ -1,4 +1,3 @@
-from oddysey.connector.fbinance import connector
 import _thread
 import pandas as pd
 from datetime import datetime as dt
@@ -8,17 +7,9 @@ import sys
 
 import json
 
-# json dir
-local = '/home/lenovo/Desktop/algo/oddysey/auth.json'
-server = '/root/oddysey/auth.json'
-
-with open(local) as f:
-    d = json.load(f)
-
 class BBOScrapper:
     def __init__(self):
         self.col = 'marketData'
-        self.binance_client = connector(api_key=d['auth'][0]['api'], secret_key=d['auth'][0]['sec'], symbol="some")
         self.mongo_client = initMongo(self.col)
 
         # class params
@@ -26,12 +17,8 @@ class BBOScrapper:
 
 
     def getBBO(self, scrapper, lock):
-
-        # todo 
-        # create interval handler function 
-        # sleep the thread
-
-        res = self.binance_client.getBBO(scrapper['symbol'])
+        connector = initConnector(scrapper)
+        res = connector.getBBO(scrapper['symbol'])
         data = {
             'ask': float(res['asks'][0][0]),
             'bid': float(res['bids'][0][0]),
@@ -41,9 +28,6 @@ class BBOScrapper:
         }
 
         print(data)
-        #update table
-        # to do :
-        # find documents
         self.updateDocs(data, scrapper)
 
         lock.release()

@@ -8,32 +8,33 @@ import json
 class BBOScrapper:
     def __init__(self):
         self.col = 'marketData'
-        self.mongo_client = initMongo(self.col)
-
-        # class params
         self.table_limit = 1000
 
 
     def main(self, scrapper, lock):
-        connector = initConnector(scrapper)
-        res = connector.getBBO(scrapper['symbol'])
-        data = {
-            'ask': float(res['asks'][0][0]),
-            'bid': float(res['bids'][0][0]),
-            'ask_volume': float(res['asks'][0][1]),
-            'bid_volume': float(res['bids'][0][1]),
-            'timestamp': str(dt.fromtimestamp(res['T']/1000))
-        }
+        run = runThread(scrapper)
+        if run:
+            start = int(time.time())
+            connector = initConnector(scrapper)
+            res = connector.getBBO(scrapper['symbol'])
+            data = {
+                'ask': float(res['asks'][0][0]),
+                'bid': float(res['bids'][0][0]),
+                'ask_volume': float(res['asks'][0][1]),
+                'bid_volume': float(res['bids'][0][1]),
+                'timestamp': str(dt.fromtimestamp(res['T']/1000))
+            }
 
-        print(data)
-        self.updateDocs(data, scrapper)
-
-        lock.release()
-        return
+            self.updateDocs(data, scrapper)
+            print(f"time taken getBBO and updateDocs: {int(time.time())-start}")
+            lock.release()
+            return
+        else:
+            lock.release()
+            return
 
     def updateDocs(self, data, scrapper):
-        # to do
-        docs = self.mongo_client.find_one({'name':scrapper['name']})
+        docs = initMongo(self.col).find_one({'name':scrapper['name']})
         if docs['init'] is False:
             columns = ['ask', 'bid', 'ask_volume', 'bid_volume', 'timestamp']
             for i in columns:
@@ -50,7 +51,8 @@ class BBOScrapper:
                 "timestamp": docs['timestamp']
             }
 
-            self.mongo_client.update_one({'name':scrapper['name']}, {"$set":temp_obj})
+            
+            hey = initMongo(self.col).find_one_and_update({'name':scrapper['name']}, {"$set":temp_obj})
             return
 
         else:
@@ -68,11 +70,9 @@ class BBOScrapper:
                 "ask_volume": ask_volume,
                 "bid_volume": bid_volume,
                 "timestamp": timestamp,
-
-				# init False
-				"init": False
+		"init": False
             }
-            self.mongo_client.update_one({'name':scrapper['name']}, {"$set":temp_obj})
+            initMongo(self.col).find_one_and_update({'name':scrapper['name']}, {"$set":temp_obj})
             return
 
 if __name__ == "__main__":

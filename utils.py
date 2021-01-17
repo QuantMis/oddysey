@@ -30,6 +30,22 @@ def threadManager(cls, targetCol, Q):
         for i in n:
             while locks[i].locked(): pass
 
+# handle interval on thread
+def runThread(config):
+    if int(time.time()) >= config['nextExec'] and config['nextExec']!=0:
+        Q = {"$set": {'nextExec':int(int(time.time())+config['interval'])}}
+        initMongo('marketData').find_one_and_update({'name': config['name']}, Q)
+        return True
+
+
+    elif config['nextExec'] == 0:
+        Q = {"$set": {'nextExec':int(int(time.time())+config['interval'])}}
+        initMongo('marketData').find_one_and_update({'name': config['name']}, Q)
+        return False
+
+    else:
+        return False
+    
 
 def createOrderDB(signal, config, order):
     tradesObj = {

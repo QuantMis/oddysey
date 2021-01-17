@@ -24,7 +24,7 @@ class connector:
         }
 
         #enable hedge by default
-        self.hedge_mode()
+        #self.hedge_mode()
 
     def createsignature(self,params):
         query_string = []

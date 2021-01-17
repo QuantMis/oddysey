@@ -1,6 +1,5 @@
 from oddysey.utils import *
 import sys
-import _thread
 import pandas as pd
 import time
 
@@ -9,7 +8,7 @@ class MomentumScalper:
         self.paramData = initMongo('paramData')
         self.signalData = initMongo('signalData')
 
-    def generate_signal(self, signal, lock):
+    def main(self, signal, lock):
         data = self.paramData.find_one({'name': signal['param_table']})
 
         mp = data['mp']
@@ -18,18 +17,18 @@ class MomentumScalper:
 
         # buy signal
         if mp > ub:
-            status = "LONG"
+            call = "LONG"
 
         # sell signal
         elif mp < lb:
-            status = "SHORT"
+            call = "SHORT"
 
         else:
-            status = "FLAT"
+            call = "FLAT"
 
         # update docs
         temp_obj = {
-            "status":status,
+            "signal": call,
             "timestamp":int(time.time())
         }
 
@@ -44,27 +43,15 @@ class MomentumScalper:
         self.signalData.update_one({'name': signal['name']}, {"$set":data})
         return
 
-    def run(self):
-        while True:
-            df = pd.DataFrame(list(self.signalData.find()))
-            locks = []
-            n = range(len(df))
-            for i in n:
-                lock = _thread.allocate_lock()
-                lock.acquire()
-                locks.append(lock)
-
-            for i in n:
-                _thread.start_new_thread(self.generate_signal, (df.iloc[i], locks[i]))
-
-            for i in n:
-                while locks[i].locked(): pass
-
 if __name__ == '__main__':
-    strategyObj = MomentumScalper()
+    # init thread
+    targetCol = 'signalData'
+    main = MomentumScalper()
+    Q = {'status':'start'}
+
     try:
-        strategyObj.run()
+        threadManager(main, targetCol, Q)
+        
     except Exception as e:
         print(e)
-        sys.out()
-
+        sys.exit()

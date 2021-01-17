@@ -1,4 +1,5 @@
 from oddysey.utils import *
+
 class SizingLibrary:
     def __init__(self, config):
         self.account = initMongo('accountData').find_one({'name':config['account']})

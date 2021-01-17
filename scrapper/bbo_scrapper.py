@@ -1,4 +1,3 @@
-import _thread
 import pandas as pd
 from datetime import datetime as dt
 import time
@@ -15,7 +14,7 @@ class BBOScrapper:
         self.table_limit = 1000
 
 
-    def getBBO(self, scrapper, lock):
+    def main(self, scrapper, lock):
         connector = initConnector(scrapper)
         res = connector.getBBO(scrapper['symbol'])
         data = {
@@ -76,28 +75,16 @@ class BBOScrapper:
             self.mongo_client.update_one({'name':scrapper['name']}, {"$set":temp_obj})
             return
 
-
-
-    def run(self):
-        while True:
-            df = pd.DataFrame(list(initMongo(self.col).find()))
-            locks = []
-            n = range(len(df))
-            for i in n:
-                lock = _thread.allocate_lock()
-                a = lock.acquire()
-                locks.append(lock)
-
-            for i in n:
-                _thread.start_new_thread(self.getBBO, (df.iloc[i], locks[i])) 
-
-            for i in n:
-                while locks[i].locked(): pass
-
 if __name__ == "__main__":
-    scraperObj = BBOScrapper()
+
+    # init thread
+    targetCol = 'marketData'
+    main = BBOScrapper()
+    Q = {'status':'start'}
+
     try:
-        scraperObj.run()
+        threadManager(main, targetCol, Q)
+        
     except Exception as e:
         print(e)
         sys.exit()

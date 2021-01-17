@@ -1,14 +1,14 @@
 import pandas as pd
-import _thread
 from oddysey.utils import *
 from statistics import *
+import sys
 
 class StdDev:
 	def __init__(self):
 		self.col1 = 'marketData'
 		self.col2 = 'paramData'
 
-	def computeSTDEV(self, table, lock):
+	def main(self, table, lock):
 		data = initMongo(self.col1).find_one({'name': table['table_name']})
 
 		# todo: compute params
@@ -54,23 +54,18 @@ class StdDev:
 
 		return
 
-	def run(self):
-		df = pd.DataFrame(list(initMongo(self.col2).find()))
-		locks = []
-		n = range(len(df))
-
-		for i in n:
-			lock = _thread.allocate_lock()
-			a = lock.acquire()
-			locks.append(lock)
-
-		for i in n:
-			_thread.start_new_thread(self.computeSTDEV, (df.iloc[i], locks[i]))
-
-		for i in n:
-			while locks[i].locked():pass
-
+	
 if __name__ == "__main__":
-	pcompObj = StdDev()
-	while True:
-		pcompObj.run()
+
+    # init thread
+    targetCol = 'paramData'
+    main = StdDev()
+    Q = {'status':'start'}
+
+    try:
+        threadManager(main, targetCol, Q)
+        
+    except Exception as e:
+        print(e)
+        sys.exit()
+	

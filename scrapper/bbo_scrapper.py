@@ -4,7 +4,6 @@ from datetime import datetime as dt
 import time
 from oddysey.utils import *
 import sys
-
 import json
 
 class BBOScrapper:

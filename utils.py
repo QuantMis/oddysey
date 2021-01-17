@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 from oddysey.connector.fbinance import connector
 import time, uuid, _thread, pandas
+from datetime import datetime
 
 # init mongo
 def initMongo(col) -> MongoClient:
@@ -66,3 +67,9 @@ def is_valid(signal):
 
 def uniqueId():
     return uuid.uuid4()
+
+def utc_timestamp():
+    return datetime.utcfromtimestamp(int(time.time())).strftime('%Y-%m-%d %H:%M:%S')
+
+
+

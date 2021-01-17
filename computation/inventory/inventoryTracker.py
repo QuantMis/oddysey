@@ -4,16 +4,18 @@ import pandas as pd
 import _thread
 import sys
 
-class computePnl:
+class inventoryTracker:
     def __init__(self):
        self.liveTradesData = 'liveTradesData' 
        self.demoTradesData = 'demoTradesData'
+       self.inventoryData = 'accountData'
+
+    def calculate(self, entry_data):
+        # input(open price, qty, current price)
+        # return pnl, last_update_ts
+        pass
 
     def main(self, config, lock):
-        # to do
-        # fetch trades open data from respective col
-        # logic to compute pnl ??
-        # compute and update
 
         Q = {'status':'open'}
         ids = initMongo(config).find(Q)

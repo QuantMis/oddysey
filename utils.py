@@ -50,19 +50,14 @@ def runThread(config):
 def createOrderDB(signal, config, order):
     tradesObj = {
         "trader": config['name'],
-        "signal": config['signal'],
+        "signal": config['signal'], # signal table
         "symbol": config['symbol'],
-        "timestamp": signal['timestamp'],
+        "timestamp": utc_timestamp(),
         "id": uniqueId(),
         "side": signal['signal'],
         "order_type": order['type'],
-        "status": "open",
         "qty": order['qty'],
         "open_price": getBBO(config['symbol'], signal['signal']),
-        "close_price": 0,
-        "closed_by": "",
-        "pnl":0,
-        "pnl_updated_ts":0
     }
     
     col = "liveTradesData" if config['status']=='LIVE' else "demoTradesData"
@@ -75,7 +70,6 @@ def createOrderExchange(signal):
 def getBBO(symbol, signal):
     side = 'asks' if signal == "LONG" else "bids" 
     return float(connector('api', 'sec', symbol).getBBO(symbol)[side][0][0])
-
 
 def is_valid(signal):        
     validWindow = 5 
